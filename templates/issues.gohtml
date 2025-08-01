@@ -1,0 +1,54 @@
+    <div class="toc">
+        <p>Contents:</p>
+        <ul>
+            <li><a href="#toc-issues">Issues</a> </li>
+            <ul>
+                <li><a href="#iss-VULNERABILITY">Vulnerabilities</a> </li>
+                <li><a href="#iss-BUG">Bugs</a> </li>
+                <li><a href="#iss-CODE_SMELL">Code Smell</a> </li>
+            </ul>
+            <li><a href="#toc-hotspots">Security Hotspots</a></li>
+        </ul>
+    </div>
+
+    <div class="header">
+        <h1 id="toc-issues">SonarQube Issues Report</h1>
+        <p>Project: {{.ProjectKey}}</p>
+    </div>
+
+    <div class="summary">
+        <h2>Summary</h2>
+        <p>Total Issues: {{.Total}}</p>
+    </div>
+
+    <table class="issues-table">
+        <thead>
+        <tr>
+            <th>Type</th>
+            <th>Severity</th>
+            <th>Message</th>
+            <th>Component</th>
+            <th>Line</th>
+            <th>Creation Date</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{$itype := "" }}
+        {{range .Issues}}
+            {{ if ne $itype .Type}}
+                {{ $itype = .Type }}
+                {{ $anm := print "iss-" .Type}}
+                <tr id={{$anm}}>
+            {{else}}
+                <tr>
+            {{end}}
+                <td><span class="type">{{.Type}}</span></td>
+                <td><span class="severity {{.Severity}}">{{.Severity}}</span></td>
+                <td>{{.Message}}</td>
+                <td>{{.Component}}</td>
+                <td>{{if .Line}}{{.Line}}{{else}}-{{end}}</td>
+                <td>{{.CreationDate}}</td>
+            </tr>
+        {{end}}
+        </tbody>
+    </table>

@@ -1,0 +1,5 @@
+        <h2>{{.Rule.VulnerabilityProbability}} / {{.Rule.SecurityCategory}} / {{.Rule.Name}}</h2>
+        <p>{{.Message}}
+        <p>{{.Component.LongName}}:{{.TextRange.StartLine}}
+        <p>{{htmlSafe .Rule.VulnerabilityDescription}}
+        <p>{{htmlSafe .Rule.RiskDescription}}<p><p>

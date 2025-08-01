@@ -1,33 +1,57 @@
 package main
 
 import (
+	"SonarReporter/lib/config"
 	sonar_client "SonarReporter/lib/sonar-client"
+	"fmt"
 	"log"
 	"os"
 )
 
-//TIP <p>To run your code, right-click the code and select <b>Run</b>.</p> <p>Alternatively, click
-// the <icon src="AllIcons.Actions.Execute"/> icon in the gutter and select the <b>Run</b> menu item from here.</p>
-
 func main() {
-	client := sonar_client.NewSonarClient("http://localhost:9000", os.Getenv("SONAR_TOKEN"))
+	cfg := config.NewSrConfig()
+	client := sonar_client.NewSonarClient(cfg.BaseURL, cfg.SonarToken)
 
-	hotspots, err := client.GetHotspots(os.Getenv("PROJECT_KEY"))
+	// Create output file
+	fp, err := os.Create(fmt.Sprintf("sonar-report-%s.html", cfg.ProjectKey))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer fp.Close()
+
+	if err := sonar_client.RenderHtmlHead(fp); err != nil {
+		log.Fatal(err)
+	}
+
+	// Render Issues
+	response, err := client.GetAllIssues(cfg)
+	if err := client.RenderIssuesTemplate(fp, response, cfg.ProjectKey); err != nil {
+		log.Fatal(err)
+	}
+
+	// Render Security Hotspots
+	hotspots, err := client.GetHotspots(cfg.ProjectKey)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-
-	// Export detailed information to CSV
-	fname := "detailed_security_hotspots.csv"
-	if err := client.ExportDetailedHotspots(hotspots, "detailed_security_hotspots.html"); err != nil {
+	// Summary
+	if err := client.RenderHotspotSummary(fp, cfg.ProjectKey, len(hotspots)); err != nil {
+		log.Fatalf("Failed to export hotspot summary to HTML: %v", err)
+	}
+	// Export detailed information to running HTML
+	if err := client.RenderHotspots(fp, hotspots); err != nil {
 		log.Fatalf("Failed to export detailed hotspots to HTML: %v", err)
 	}
 
-	log.Println("Successfully exported hotspots to", fname)
+	if err := sonar_client.RenderHtmlTail(fp); err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println("Successfully exported hotspots to", fp.Name())
 	log.Println(
 		"You can view the detailed hotspots in your browser by opening",
-		fname,
+		fp.Name(),
 		"or by running the following command:",
-		"open", fname,
+		"open", fp.Name(),
 	)
 }
