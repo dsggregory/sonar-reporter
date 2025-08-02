@@ -25,6 +25,9 @@ func main() {
 
 	// Render Issues
 	response, err := client.GetAllIssues(cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
 	if err := client.RenderIssuesTemplate(fp, response, cfg.ProjectKey); err != nil {
 		log.Fatal(err)
 	}

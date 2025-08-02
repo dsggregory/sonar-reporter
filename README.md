@@ -3,6 +3,7 @@
 Create an HTML report from Sonar Scan results including Issues and Security Hotspots.
 
 ## Usage
+The following command-line options are also available to set from properly spelled environments variables.
 ```aiignore
 Usage of SonarReporter:
   -base-url string
