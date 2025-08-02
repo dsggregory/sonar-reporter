@@ -47,9 +47,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log.Println("Successfully exported hotspots to", fp.Name())
+	log.Println("Successfully exported issues and hotspots to", fp.Name())
 	log.Println(
-		"You can view the detailed hotspots in your browser by opening",
+		"You can view the report in your browser by opening",
 		fp.Name(),
 		"or by running the following command:",
 		"open", fp.Name(),

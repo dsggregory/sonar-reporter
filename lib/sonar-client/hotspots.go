@@ -67,11 +67,8 @@ func (c *SonarClient) GetHotspots(projectKey string) ([]Hotspot, error) {
 	}
 	defer resp.Body.Close()
 
-	//body, err := ioutil.ReadAll(resp.Body)
-	//print(body)
-
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		return nil, c.responseError(resp, fmt.Sprintf("unexpected status code: %d", resp.StatusCode))
 	}
 	// Decode response
 	var hotspotResponse HotspotResponse
@@ -190,51 +187,6 @@ type TextRange struct {
 }
 
 // GetHotspotDetail retrieves detailed information for a single hotspot
-/*
-{
-  "key" : "AZhCUvjRhaoHRbtrKnH3",
-  "component" : {
-    "key" : "CheddarAll:backend/api/config/initializers/constants.rb",
-    "qualifier" : "FIL",
-    "name" : "constants.rb",
-    "longName" : "backend/api/config/initializers/constants.rb",
-    "path" : "backend/api/config/initializers/constants.rb"
-  },
-  "project" : {
-    "key" : "CheddarAll",
-    "qualifier" : "TRK",
-    "name" : "CheddarAll",
-    "longName" : "CheddarAll"
-  },
-  "rule" : {
-    "key" : "ruby:S2068",
-    "name" : "Hard-coded credentials are security-sensitive",
-    "securityCategory" : "auth",
-    "vulnerabilityProbability" : "HIGH",
-    "riskDescription" : "<p>Because it is easy to extract strings from an application source code or binary, credentials should not be hard-coded. This is particularly true\nfor applications that are distributed or that are open-source.</p>\n<p>In the past, it has led to the following vulnerabilities:</p>\n<ul>\n  <li> <a href=\"http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-13466\">CVE-2019-13466</a> </li>\n  <li> <a href=\"http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-15389\">CVE-2018-15389</a> </li>\n</ul>\n<p>Credentials should be stored outside of the code in a configuration file, a database, or a management service for secrets.</p>\n<p>This rule flags instances of hard-coded credentials used in database and LDAP connections. It looks for hard-coded credentials in connection\nstrings, and for variable names that match any of the patterns from the provided list.</p>\n<p>It’s recommended to customize the configuration of this rule with additional credential words such as \"oauthToken\", \"secret\", …​</p>\n",
-    "vulnerabilityDescription" : "<h2>Ask Yourself Whether</h2>\n<ul>\n  <li> Credentials allow access to a sensitive component like a database, a file storage, an API or a service. </li>\n  <li> Credentials are used in production environments. </li>\n  <li> Application re-distribution is required before updating the credentials. </li>\n</ul>\n<p>There is a risk if you answered yes to any of those questions.</p>\n",
-    "fixRecommendations" : "<h2>Recommended Secure Coding Practices</h2>\n<ul>\n  <li> Store the credentials in a configuration file that is not pushed to the code repository. </li>\n  <li> Store the credentials in a database. </li>\n  <li> Use your cloud provider’s service for managing secrets. </li>\n  <li> If a password has been disclosed through the source code: change it. </li>\n</ul>\n<h2>See</h2>\n<ul>\n  <li> <a href=\"https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/\">OWASP Top 10 2021 Category A7</a> - Identification and\n  Authentication Failures </li>\n  <li> <a href=\"https://owasp.org/www-project-top-ten/2017/A2_2017-Broken_Authentication\">OWASP Top 10 2017 Category A2</a> - Broken Authentication\n  </li>\n  <li> <a href=\"https://cwe.mitre.org/data/definitions/798\">MITRE, CWE-798</a> - Use of Hard-coded Credentials </li>\n  <li> <a href=\"https://cwe.mitre.org/data/definitions/259\">MITRE, CWE-259</a> - Use of Hard-coded Password </li>\n  <li> <a href=\"https://www.sans.org/top25-software-errors/#cat3\">SANS Top 25</a> - Porous Defenses </li>\n  <li> Derived from FindSecBugs rule <a href=\"https://h3xstream.github.io/find-sec-bugs/bugs.htm#HARD_CODE_PASSWORD\">Hard Coded Password</a> </li>\n</ul>"
-  },
-  "status" : "TO_REVIEW",
-  "line" : 2,
-  "hash" : "658b5e333cb83fce1e34e649832c2f8b",
-  "message" : "\"PASSWORD\" detected here, make sure this is not a hard-coded credential.",
-  "creationDate" : "2025-07-25T12:01:45-0400",
-  "updateDate" : "2025-07-25T12:01:45-0400",
-  "textRange" : {
-    "startLine" : 2,
-    "endLine" : 2,
-    "startOffset" : 0,
-    "endOffset" : 13
-  },
-  "changelog" : [ ],
-  "comment" : [ ],
-  "users" : [ ],
-  "canChangeStatus" : true,
-  "flows" : [ ],
-  "messageFormattings" : [ ]
-}
-*/
 func (c *SonarClient) GetHotspotDetail(hotspotKey string) (*HotspotDetail, error) {
 	endpoint := fmt.Sprintf("%s/api/hotspots/show", c.baseURL)
 
@@ -257,11 +209,8 @@ func (c *SonarClient) GetHotspotDetail(hotspotKey string) (*HotspotDetail, error
 	}
 	defer resp.Body.Close()
 
-	//body, err := ioutil.ReadAll(resp.Body)
-	//print(body)
-
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		return nil, c.responseError(resp, fmt.Sprintf("unexpected status code: %d", resp.StatusCode))
 	}
 
 	var detail HotspotDetail

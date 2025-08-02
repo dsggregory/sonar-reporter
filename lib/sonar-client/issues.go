@@ -1,4 +1,3 @@
-// file handle search and report using https://next.sonarqube.com/sonarqube/web_api/api/issues
 package sonar_client
 
 import (
@@ -68,13 +67,13 @@ func sortIssues(issues []Issue) {
 //
 // Options example:
 //
-//		options := map[string]string{
-//	   "severities": "CRITICAL,BLOCKER",
-//	   "types": "BUG",
-//	   "resolved": "false",
-//	   "ps": "100", // page size
-//	   "p": "1",    // page number
-//		}
+//	options := map[string]string{
+//		"severities": "BLOCKER,CRITICAL,MAJOR,MINOR.INFO",
+//		"types": "VULNERABILITY,BUG,CODE_SMELL",
+//		"resolved": "false",
+//		"ps": "100", // page size
+//		"p": "1",    // page number
+//	}
 func (c *SonarClient) SearchIssues(projectKey string, options map[string]string) (*IssuesSearchResponse, error) {
 	// Construct the URL with query parameters
 	baseURL := fmt.Sprintf("%s/api/issues/search", c.baseURL)
@@ -103,7 +102,7 @@ func (c *SonarClient) SearchIssues(projectKey string, options map[string]string)
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		return nil, c.responseError(resp, fmt.Sprintf("unexpected status code: %d", resp.StatusCode))
 	}
 
 	// Parse response
@@ -120,7 +119,7 @@ func (c *SonarClient) GetAllIssues(cfg *config.SrConfig) (*IssuesSearchResponse,
 	var issues []Issue
 	var opts = map[string]string{"ps": "100", "p": "1"}
 	const pageSz = 100
-	var lr IssuesSearchResponse = IssuesSearchResponse{P: 1, Ps: pageSz}
+	var lr = IssuesSearchResponse{P: 1, Ps: pageSz}
 	nextp := 1
 	for {
 		response, err := c.SearchIssues(cfg.ProjectKey, opts)
